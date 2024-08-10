@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // Secret key for JWT verification
 const SECRET_KEY = process.env.SECRET_KEY;
+console.log("****** " + SECRET_KEY)
 // Middleware to validate JWT
 function authenticateJWT(req, res, next) {
     const authHeader = req.headers['authorization'];
