@@ -11,6 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.624.0",
+    "@aws-sdk/client-dynamodb": "^3.624.0",
+    "@aws-sdk/client-kendra": "^3.624.0",
+    "@aws-sdk/lib-dynamodb": "^3.624.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
