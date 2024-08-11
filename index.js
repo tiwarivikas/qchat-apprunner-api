@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cors = require('cors');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { BedrockRuntimeClient, InvokeModelCommand, InvokeModelWithResponseStreamCommand } = require("@aws-sdk/client-bedrock-runtime"); // ES Modules const
@@ -9,6 +10,9 @@ const { PutCommand, DynamoDBDocumentClient, QueryCommand: DDBQueryCommand } = re
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Use the cors middleware
+app.use(cors());
 
 // Secret key for JWT verification
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -46,9 +50,9 @@ app.get('/stream', authenticateJWT, async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader("Access-Control-Allow-Origin", "*");
+/*     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); */
 
     const chatMsg = req.query.chat;
     if (!chatMsg) res.status(401).send('Exception: Chat Param is missing.')
