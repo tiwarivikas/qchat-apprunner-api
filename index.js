@@ -46,6 +46,9 @@ app.get('/stream', authenticateJWT, async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
     const chatMsg = req.query.chat;
     if (!chatMsg) res.status(401).send('Exception: Chat Param is missing.')
