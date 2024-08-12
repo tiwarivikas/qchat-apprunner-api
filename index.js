@@ -84,8 +84,8 @@ async function chat(userMsg, decodedToken, res) {
     let outputBR = { response: '', sourceAttributions: [] };
     let qnaHistory = '';
     let nextQuery = '';
-
-
+    let conversationId = '';
+    let messageId = '';
 
     try {
         const msg = JSON.parse(userMsg);
@@ -111,6 +111,9 @@ Response: ${item.response}`)
 
         if (firstLLMResponse?.context == "greeting") {
             textResponse = firstLLMResponse.response
+            const resultFirstConvMutation = await mutateConversation(conversationId, query, "", textResponse, decodedToken)
+            messageId = resultFirstConvMutation.messageId
+            conversationId = resultFirstConvMutation.conversationId
         } else if (firstLLMResponse?.context == "new-query") {
             nextQuery = ""
         } else if (firstLLMResponse?.context == "follow-up") {
@@ -169,7 +172,7 @@ Response: ${item.response}`)
             const secondLLMResponse = extractFirstJSON(tmpResponse);
 
             //Now parse the complete JSON.
-            outputBR = JSON.parse(tmpResponse)
+            outputBR = JSON.parse(secondLLMResponse)
             textResponse = outputBR.response?.trim();
             attributions = outputBR.sourceAttributions?.
                 filter(function (v, i, self) {
