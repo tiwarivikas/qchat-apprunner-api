@@ -14,6 +14,13 @@ const PORT = process.env.PORT || 3000;
 // Use the cors middleware
 app.use(cors());
 
+// Optionally, configure CORS to allow specific origins
+/* app.use(cors({
+    origin: 'http://your-allowed-origin.com',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+})); */
+
 // Secret key for JWT verification
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -154,6 +161,8 @@ Response: ${item.response}`)
                     }
                 }
             };
+
+            console.log(tmpResponse)
 
             //Now parse the complete JSON.
             outputBR = JSON.parse(tmpResponse)
@@ -372,7 +381,7 @@ async function queryConversastion(conversationId) {
     });
 
     const response = await docClient.send(command);
-    console.log(response);
+    //console.log(response);
     return response.Items;
 
 }
