@@ -391,16 +391,22 @@ async function queryConversastion(conversationId) {
 }
 
 function extractFirstJSON(outputStr) {
-    console.log("Extracting JSON from: " + outputStr)
-    const start = outputStr.indexOf('{')
-    if (start >= 0) {
-        const end = outputStr.indexOf('}')
-        const finalOutput = outputStr.substring(start, end + 1)
-        return JSON.parse(finalOutput)
-    } else {
+    try {
+        console.log("Extracting JSON from: " + outputStr)
+        const start = outputStr.indexOf('{')
+        if (start >= 0) {
+            const end = outputStr.lastIndexOf('}')
+            const finalOutput = outputStr.substring(start, end + 1)
+            return JSON.parse(finalOutput)
+        } else {
+            return {}
+        }
+    } catch (err) {
+        console.log(err)
         return {}
-    }
+    } 
 }
+
 
 function llmPrompt(type, company, chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse) {
     let prompt = "";
