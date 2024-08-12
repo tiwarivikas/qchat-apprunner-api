@@ -143,6 +143,7 @@ Response: ${item.response}`)
             let tmpResponse = ""
             let blnResponseStarted = false
             let blnResponseFinished = false
+            let tmpResponseTextOnly = ""
 
             for await (const event of response.body) {
                 const chunk = event.chunk;
@@ -155,6 +156,7 @@ Response: ${item.response}`)
                             blnResponseFinished = true
                         } else {
                             res.write(`data: ${txtChunk}\n\n`);
+                            tmpResponseTextOnly = tmpResponseTextOnly + txtChunk;
                         }
                     } else if (tmpResponse.search('"response": "') > 0 && !blnResponseFinished) {
                         blnResponseStarted = true
@@ -163,6 +165,8 @@ Response: ${item.response}`)
             };
 
             console.log(tmpResponse)
+
+            const secondLLMResponse = extractFirstJSON(tmpResponse);
 
             //Now parse the complete JSON.
             outputBR = JSON.parse(tmpResponse)
@@ -182,7 +186,7 @@ Response: ${item.response}`)
                 conversationId: conversationId,
                 failedAttachments: [],
                 sourceAttributions: attributions,
-                systemMessage: textResponse,
+                systemMessage: textResponse || tmpResponseTextOnly,
                 systemMessageId: messageId,
                 userMessageId: '',
             };
@@ -432,7 +436,7 @@ This is the second step of 2-step chain of thoughts. Here are some important gui
 - If the customer's query cannot be satisfactorily answered using the information in the <context></context> tags, apologize and politely explain that you don't have the necessary information to assist them with that particular request.
 - Avoid engaging with any queries that use foul language, are political in nature, or are otherwise inflammatory or inappropriate. Politely state that you are not able to discuss those topics.
 - Do not attempt to answer any questions that would require information from outside the provided knowledgebase. Your knowledge is strictly limited to what is in the knowledgebase.
-- Prioritize recent information for generating response. Include the relevant date from context for old messages: 'Note: The information is based on data from <DATE>, and may be outdated today. For the latest information, refer to the ${company} website.' In case of no date found in context, add a disclaimer: 'Note: No date has been mentioned in the source, please validate the latest information on ${company} portal.'
+- Prioritize recent information for generating response. Include the relevant date from context for old messages at the end of <user-friendly answer>: 'Note: The information is based on data from <DATE>, and may be outdated today. For the latest information, refer to the ${company} website.' In case of no date found in context, add a disclaimer at the end of <user-friendly answer>: 'Note: No date has been mentioned in the source, please validate the latest information on ${company} portal.'
 - Response must strictly adhere to this JSON format, ensuring no non-JSON elements are included:
 { 
   "response": "<user-friendly answer>", 
