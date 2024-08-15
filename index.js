@@ -9,14 +9,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Use the cors middleware
-//app.use(cors());
+app.use(cors());
 
 // Optionally, configure CORS to allow specific origins
-app.use(cors({
+/* app.use(cors({
     origin: ['https://chat.cloudevangelist.in/*', "http://localhost:3000/*"],
     methods: ['OPTIONS', 'GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+})); */
 
 
 // SSE endpoint
