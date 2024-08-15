@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 3000;
 
 // Optionally, configure CORS to allow specific origins
 app.use(cors({
-    origin: ['https://chat.cloudevangelist.in', "http://localhost:3000"],
-    methods: ['GET', 'POST'],
+    origin: ['https://chat.cloudevangelist.in/*', "http://localhost:3000/*"],
+    methods: ['OPTIONS', 'GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
