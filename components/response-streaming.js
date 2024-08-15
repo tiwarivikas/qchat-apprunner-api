@@ -1,6 +1,9 @@
 const { extractFirstJSON } = require('./prompt-utils');
 
 async function responseStreaming(streamResponse, res) {
+
+    try {
+
     res.write('data: [START]\n\n');
 
     let tmpResponse = ""
@@ -28,6 +31,10 @@ async function responseStreaming(streamResponse, res) {
     };
     const extractedJSON = extractFirstJSON(tmpResponse);
     return extractedJSON.response ? extractedJSON : {response: tmpResponseTextOnly};
+} catch (error) {
+    console.log(error)
+    return {response: tmpResponseTextOnly};
+}
 }
 
 module.exports = {responseStreaming}
