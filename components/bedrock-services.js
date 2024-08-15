@@ -24,7 +24,6 @@ async function executeBedrockAPI(query) {
         let decoder = new TextDecoder();
         let responseObject = decoder.decode(response.body);
         const textObj = JSON.parse(responseObject).outputs;
-        console.log(textObj[0].text.replace(/^\s+|\s+$/g, ''));
         return textObj[0].text.replace(/^\s+|\s+$/g, '');
     } catch (err) {
         console.log(err);

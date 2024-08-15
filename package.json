@@ -14,6 +14,7 @@
     "@aws-sdk/client-bedrock-runtime": "^3.624.0",
     "@aws-sdk/client-dynamodb": "^3.624.0",
     "@aws-sdk/client-kendra": "^3.624.0",
+    "@aws-sdk/client-polly": "^3.631.0",
     "@aws-sdk/lib-dynamodb": "^3.624.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

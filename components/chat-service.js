@@ -3,6 +3,7 @@ const {retrieveKendraSearch} = require('./kendra-retrieval');
 const {mutateConversation, queryConversastion} = require('./conversation-services');
 const { llmPrompt, extractFirstJSON } = require('./prompt-utils');
 const { responseStreaming } = require('./response-streaming');
+const {textToSpeechStream} = require('./tts-polly');
 
 async function chat(userMsg, decodedToken, res) {
     let textResponse;
@@ -88,8 +89,12 @@ async function chat(userMsg, decodedToken, res) {
 
         res.write('data: [COMPLETE]\n\n');
         res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
-        res.write('data: [END]\n\n');
-        res.end();
+
+        //Start TTS
+        res.write('data: [AUDIO]\n\n');
+        await textToSpeechStream(outputResponse.systemMessage, res);
+        //res.write('data: [END]\n\n');
+        //res.end();
 
         return;
 

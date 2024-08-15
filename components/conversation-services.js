@@ -37,7 +37,6 @@ async function mutateConversation(conversationId, query, nextQuery, textResponse
     });
 
     const response = await docClient.send(command);
-    console.log(response);
     return { conversationId, messageId };
 
 }
@@ -58,7 +57,6 @@ async function queryConversastion(conversationId) {
     });
 
     const response = await docClient.send(command);
-    //console.log(response);
     return response.Items;
 
 }
