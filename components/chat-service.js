@@ -69,7 +69,7 @@ async function chat(userMsg, decodedToken, res) {
                 conversationId: conversationId,
                 failedAttachments: [],
                 sourceAttributions: attributions,
-                systemMessage: textResponse || tmpResponseTextOnly,
+                systemMessage: textResponse,
                 systemMessageId: messageId,
                 userMessageId: '',
             };
