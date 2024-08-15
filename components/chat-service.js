@@ -53,7 +53,7 @@ async function chat(userMsg, decodedToken, res) {
             const fullPrompt = llmPrompt("SECOND_PROMPT", decodedToken.customer, decodedToken.chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse)
             const response = await executeBedrockStreamingAPI(fullPrompt)
 
-            const outputBR = responseStreaming(response, res)
+            const outputBR = await responseStreaming(response, res)
 
             textResponse = outputBR.response?.trim();
             attributions = outputBR.sourceAttributions?.
