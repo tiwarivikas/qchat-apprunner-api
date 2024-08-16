@@ -41,7 +41,7 @@ async function chat(userMsg, decodedToken, res) {
             const kendraRetrieveResponse = await retrieveKendraSearch(nextQuery ? nextQuery : query, decodedToken.applicationIdQ)
 
             if (!kendraRetrieveResponse) {
-                return {
+                var outputResponse =  {
                     conversationId,
                     failedAttachments: [],
                     sourceAttributions: [],
@@ -49,6 +49,12 @@ async function chat(userMsg, decodedToken, res) {
                     systemMessageId: '',
                     userMessageId: '',
                   };
+
+                  res.write('data: [COMPLETE]\n\n');
+                  res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
+                  res.write('data: [END]\n\n');
+                  res.end();
+                  return;
             }
 
             const fullPrompt = llmPrompt("SECOND_PROMPT", decodedToken.customer, decodedToken.chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse)
