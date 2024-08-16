@@ -1,11 +1,11 @@
 const { executeBedrockAPI, executeBedrockStreamingAPI } = require('./bedrock-services');
-const {retrieveKendraSearch} = require('./kendra-retrieval');
-const {mutateConversation, queryConversastion} = require('./conversation-services');
+const { retrieveKendraSearch } = require('./kendra-retrieval');
+const { mutateConversation, queryConversastion } = require('./conversation-services');
 const { llmPrompt, extractFirstJSON } = require('./prompt-utils');
 const { responseStreaming } = require('./response-streaming');
-const {textToSpeechStream} = require('./tts-polly');
+const { textToSpeechStream } = require('./tts-polly');
 
-async function chat(userMsg, decodedToken, res) {
+async function chat(userMsg, decodedToken, res, isSpeakerEnabled) {
     let textResponse;
     let attributions = [];
     let qnaHistory = '';
@@ -14,7 +14,7 @@ async function chat(userMsg, decodedToken, res) {
     var conversationId = '';
 
     try {
-        const { userMessage:query, conversationId:convId } = JSON.parse(userMsg);
+        const { userMessage: query, conversationId: convId } = JSON.parse(userMsg);
         conversationId = convId;
 
         if (conversationId) {
@@ -41,45 +41,39 @@ async function chat(userMsg, decodedToken, res) {
             const kendraRetrieveResponse = await retrieveKendraSearch(nextQuery ? nextQuery : query, decodedToken.applicationIdQ)
 
             if (!kendraRetrieveResponse) {
-                var outputResponse =  {
+                var outputResponse = {
                     conversationId,
                     failedAttachments: [],
                     sourceAttributions: [],
                     systemMessage: "Sorry, I couldn't find any relevant information.",
                     systemMessageId: '',
                     userMessageId: '',
-                  };
+                };
+            } else {
+                const fullPrompt = llmPrompt("SECOND_PROMPT", decodedToken.customer, decodedToken.chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse)
+                const response = await executeBedrockStreamingAPI(fullPrompt)
 
-                  res.write('data: [COMPLETE]\n\n');
-                  res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
-                  res.write('data: [END]\n\n');
-                  res.end();
-                  return;
+                const outputBR = await responseStreaming(response, res)
+
+                textResponse = outputBR.response?.trim();
+                attributions = outputBR.sourceAttributions?.
+                    filter(function (v, i, self) {
+                        return i == self.indexOf(v);
+                    })
+
+                const resultConvMutation = await mutateConversation(conversationId, query, nextQuery || "", textResponse, decodedToken)
+                messageId = resultConvMutation.messageId
+                conversationId = resultConvMutation.conversationId
+
+                var outputResponse = {
+                    conversationId: conversationId,
+                    failedAttachments: [],
+                    sourceAttributions: attributions,
+                    systemMessage: textResponse,
+                    systemMessageId: messageId,
+                    userMessageId: '',
+                };
             }
-
-            const fullPrompt = llmPrompt("SECOND_PROMPT", decodedToken.customer, decodedToken.chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse)
-            const response = await executeBedrockStreamingAPI(fullPrompt)
-
-            const outputBR = await responseStreaming(response, res)
-
-            textResponse = outputBR.response?.trim();
-            attributions = outputBR.sourceAttributions?.
-                filter(function (v, i, self) {
-                    return i == self.indexOf(v);
-                })
-
-            const resultConvMutation = await mutateConversation(conversationId, query, nextQuery || "", textResponse, decodedToken)
-            messageId = resultConvMutation.messageId
-            conversationId = resultConvMutation.conversationId
-
-            var outputResponse = {
-                conversationId: conversationId,
-                failedAttachments: [],
-                sourceAttributions: attributions,
-                systemMessage: textResponse,
-                systemMessageId: messageId,
-                userMessageId: '',
-            };
 
         } else {
             var outputResponse = {
@@ -96,11 +90,16 @@ async function chat(userMsg, decodedToken, res) {
         res.write('data: [COMPLETE]\n\n');
         res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
 
-        //Start TTS
-        res.write('data: [AUDIO]\n\n');
-        await textToSpeechStream(outputResponse.systemMessage, res);
-        //res.write('data: [END]\n\n');
-        //res.end();
+        if (isSpeakerEnabled) {
+            //Start TTS
+            res.write('data: [AUDIO]\n\n');
+            await textToSpeechStream(outputResponse.systemMessage, res);
+            //res.write('data: [END]\n\n');
+            //res.end();
+        } else {
+            res.write('data: [END]\n\n');
+            res.end();
+        }
 
         return;
 
@@ -123,4 +122,4 @@ async function chat(userMsg, decodedToken, res) {
     }
 }
 
-module.exports =  {chat}
+module.exports = { chat }

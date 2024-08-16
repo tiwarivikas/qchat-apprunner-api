@@ -27,9 +27,10 @@ app.get('/stream', authenticateJWT, async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
 
     const chatMsg = req.query.chat;
+    const isSpeakerEnabled = req.query.isSpeakerEnabled;
     if (!chatMsg) res.status(401).send('Exception: Chat Param is missing.')
 
-    const response = await chat(chatMsg, res.locals.decodedToken, res)
+    const response = await chat(chatMsg, res.locals.decodedToken, res, isSpeakerEnabled)
 
     // Clean up when client closes connection
     req.on('close', () => {
