@@ -90,7 +90,7 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled) {
         res.write('data: [COMPLETE]\n\n');
         res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
 
-        if (isSpeakerEnabled) {
+        if (isSpeakerEnabled == "true") {
             //Start TTS
             res.write('data: [AUDIO]\n\n');
             await textToSpeechStream(outputResponse.systemMessage, res);
