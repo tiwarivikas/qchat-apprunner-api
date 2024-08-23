@@ -13,7 +13,7 @@ async function retrieveKendraSearch(query, dsId) {
                     }
                 }]
             },
-            IndexId: "2786d8bd-676a-4c34-bda0-a1cea0832c29",
+            IndexId: process.env.KENDRA_INDEXID,
             PageNumber: 1,
             PageSize: 10,
             QueryText: query,
