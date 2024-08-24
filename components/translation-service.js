@@ -1,4 +1,4 @@
-import { TranslateClient, TranslateTextCommand } from '@aws-sdk/client-translate';
+const { TranslateClient, TranslateTextCommand } = require('@aws-sdk/client-translate');
 
 // Function to translate text
 async function translateText(text, sourceLanguageCode, targetLanguageCode) {

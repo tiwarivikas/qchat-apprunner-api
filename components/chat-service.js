@@ -4,7 +4,7 @@ const { mutateConversation, queryConversastion } = require('./conversation-servi
 const { llmPrompt, extractFirstJSON } = require('./prompt-utils');
 const { responseStreaming } = require('./response-streaming');
 const { textToSpeechStream } = require('./tts-polly');
-const {translateText} = require('./translation-service/translateText')
+const {translateText} = require('./translation-service');
 
 async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLanguage) {
     let textResponse;
