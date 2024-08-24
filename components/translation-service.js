@@ -17,7 +17,7 @@ async function translateText(text, sourceLanguageCode, targetLanguageCode) {
 
   try {
     const response = await translateClient.send(command);
-    return response.TranslatedText;
+    return await response.TranslatedText;
   } catch (error) {
     console.error("Error translating text:", error);
     throw error;
