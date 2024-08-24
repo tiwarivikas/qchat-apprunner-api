@@ -4,8 +4,9 @@ const { mutateConversation, queryConversastion } = require('./conversation-servi
 const { llmPrompt, extractFirstJSON } = require('./prompt-utils');
 const { responseStreaming } = require('./response-streaming');
 const { textToSpeechStream } = require('./tts-polly');
+const {translateText} = require('./translation-service/translateText')
 
-async function chat(userMsg, decodedToken, res, isSpeakerEnabled) {
+async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLanguage) {
     let textResponse;
     let attributions = [];
     let qnaHistory = '';
@@ -14,8 +15,10 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled) {
     var conversationId = '';
 
     try {
-        const { userMessage: query, conversationId: convId } = JSON.parse(userMsg);
+        const { userMessage: originalQuery, conversationId: convId } = JSON.parse(userMsg);
         conversationId = convId;
+
+        const query = translateText(originalQuery, translationLanguage, "en")
 
         if (conversationId) {
             const conversationHistory = await queryConversastion(conversationId);
@@ -88,12 +91,14 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled) {
         }
 
         res.write('data: [COMPLETE]\n\n');
+        const txtResponse = translateText(outputResponse.systemMessage, "en", translationLanguage)
+        outputResponse.systemMessage = txtResponse
         res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
 
         if (isSpeakerEnabled == "true") {
             //Start TTS
             res.write('data: [AUDIO]\n\n');
-            await textToSpeechStream(outputResponse.systemMessage, res);
+            await textToSpeechStream(outputResponse.systemMessage, res, translationLanguage);
             //res.write('data: [END]\n\n');
             //res.end();
         } else {

@@ -1,12 +1,12 @@
 const { PollyClient, SynthesizeSpeechCommand } = require("@aws-sdk/client-polly"); // CommonJS import
 
-async function textToSpeechStream(text, res) {
+async function textToSpeechStream(text, res, translationLanguage) {
     try {
 
         const client = new PollyClient({});
         const input = { // SynthesizeSpeechInput
             Engine: "neural",
-            LanguageCode: "en-IN",
+            LanguageCode: translationLanguage + "-IN",
             OutputFormat: "mp3", // required
             Text: text, // required
             TextType: "text",
