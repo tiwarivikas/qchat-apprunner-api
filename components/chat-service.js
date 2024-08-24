@@ -18,7 +18,11 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLan
         const { userMessage: originalQuery, conversationId: convId } = JSON.parse(userMsg);
         conversationId = convId;
 
-        const query = translateText(originalQuery, translationLanguage, "en")
+        const query = await translateText(
+          originalQuery,
+          translationLanguage,
+          "en"
+        );
 
         if (conversationId) {
             const conversationHistory = await queryConversastion(conversationId);
@@ -91,7 +95,11 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLan
         }
 
         res.write('data: [COMPLETE]\n\n');
-        const txtResponse = translateText(outputResponse.systemMessage, "en", translationLanguage)
+        const txtResponse = await translateText(
+          outputResponse.systemMessage,
+          "en",
+          translationLanguage
+        );
         outputResponse.systemMessage = txtResponse
         res.write(`data: ${JSON.stringify(outputResponse)}\n\n`);
 
