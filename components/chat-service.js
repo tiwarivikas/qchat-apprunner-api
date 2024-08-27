@@ -29,7 +29,16 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLan
             qnaHistory = conversationHistory?.map((item) => `Query: ${item.question} \nResponse: ${item.response}`).join('\n') || '';
         }
 
-        const handleGreetingsPrompt = llmPrompt("FIRST_PROMPT", decodedToken.customer, decodedToken.chatbotName, qnaHistory, query, "", "")
+        const handleGreetingsPrompt = llmPrompt(
+          "FIRST_PROMPT",
+          decodedToken.customer,
+          decodedToken.chatbotName,
+          qnaHistory,
+          query,
+          "",
+          "",
+          isSpeakerEnabled
+        );
         const respLLM = await executeBedrockAPI(handleGreetingsPrompt)
         const firstLLMResponse = extractFirstJSON(respLLM);
 
@@ -57,7 +66,16 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLan
                     userMessageId: '',
                 };
             } else {
-                const fullPrompt = llmPrompt("SECOND_PROMPT", decodedToken.customer, decodedToken.chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse)
+                const fullPrompt = llmPrompt(
+                  "SECOND_PROMPT",
+                  decodedToken.customer,
+                  decodedToken.chatbotName,
+                  qnaHistory,
+                  query,
+                  nextQuery,
+                  kendraRetrieveResponse,
+                  isSpeakerEnabled
+                );
                 const response = await executeBedrockStreamingAPI(fullPrompt)
 
                 const outputBR = await responseStreaming(response, res)

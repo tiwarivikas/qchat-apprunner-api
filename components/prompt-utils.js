@@ -16,14 +16,24 @@ function extractFirstJSON(outputStr) {
 }
 
 
-function llmPrompt(type, company, chatbotName, qnaHistory, query, nextQuery, kendraRetrieveResponse) {
-    let prompt = "";
-    switch (type) {
-        case "FIRST_PROMPT":
-            prompt =
-                `
+function llmPrompt(
+  type,
+  company,
+  chatbotName,
+  qnaHistory,
+  query,
+  nextQuery,
+  kendraRetrieveResponse,
+  isSpeakerEnabled
+) {
+  let prompt = "";
+  switch (type) {
+    case "FIRST_PROMPT":
+      prompt = `
 [INST]
-You will be acting as a customer care chatbot for a ${company}. ${chatbotName ? "Your name is '" + chatbotName + "'. " : ""}Your goal is to assist customers by answering their questions and addressing their needs to the best of your ability, using information from the company's website.
+You will be acting as a customer care chatbot for a ${company}. ${
+        chatbotName ? "Your name is '" + chatbotName + "'. " : ""
+      }Your goal is to assist customers by answering their questions and addressing their needs to the best of your ability, using information from the company's website.
 
 This is a first step of 2-step chain of thoughts. In this step, you'll respond to only Greeting or Compliment messages. For any Human query, don't answer any question from your own knowledge. Read the following query from Human and determine:
 - If human query is a Greeting message (Hi, Hello, How are you, etc.) or a Compliment (Thank you, great, awesome, you can do better etc.), then respond to it in a polite and humble way as a Customer care executive for a Government department in following JSON format:  {"context": "greeting", "response": "<humble response to the query>" }. 
@@ -38,19 +48,25 @@ Validate and reconfirm whether you have selected the right option. Double check 
 [/INST] 
 
 Human: ${query} 
-AI: `
-            break;
-        case "SECOND_PROMPT":
-            prompt = `
+AI: `;
+      break;
+    case "SECOND_PROMPT":
+      prompt = `
 [INST] 
-You will be acting as a customer care chatbot for a ${company}. ${chatbotName ? "Your name is '" + chatbotName + "'. " : ""}Your goal is to assist customers by answering their questions and addressing their needs to the best of your ability, using information from the company's website.
+You will be acting as a customer care chatbot for a ${company}. ${
+        chatbotName ? "Your name is '" + chatbotName + "'. " : ""
+      }Your goal is to assist customers by answering their questions and addressing their needs to the best of your ability, using information from the company's website.
 
 This is the second step of 2-step chain of thoughts. Here are some important guidelines to follow during the conversation:
 - Respond to Human's query from the relevant information encapsulated within <context></context> tags ONLY.
 - If the customer's query cannot be satisfactorily answered using the information in the <context></context> tags, apologize and politely explain that you don't have the necessary information to assist them with that particular request.
 - Avoid engaging with any queries that use foul language, are political in nature, or are otherwise inflammatory or inappropriate. Politely state that you are not able to discuss those topics.
 - Do not attempt to answer any questions that would require information from outside the provided knowledgebase. Your knowledge is strictly limited to what is in the knowledgebase.
-- Prioritize recent information for generating response. Include the relevant date from context for old messages within the <user-friendly answer> response: 'Note: The information is based on data from <DATE>, and may be outdated today. For the latest information, refer to the ${company} website.' In case of no date found in context, add a disclaimer within the <user-friendly answer> response: 'Note: No date has been mentioned in the source, please validate the latest information on ${company} portal.'
+    ${
+      isSpeakerEnabled
+        ? "- Be precise to provide response in less than 30 words."
+        : "- Prioritize recent information for generating response. Include the relevant date from context for old messages within the <user-friendly answer> response: 'Note: The information is based on data from <DATE>, and may be outdated today. For the latest information, refer to the ${company} website.' In case of no date found in context, add a disclaimer within the <user-friendly answer> response: 'Note: No date has been mentioned in the source, please validate the latest information on ${company} portal.'"
+    }
 - Response must strictly adhere to this JSON format, ensuring no non-JSON elements are included:
 { 
   "response": "<user-friendly answer>", 
@@ -70,11 +86,11 @@ Validate and reconfirm that you are sharing a valid JSON. Only share a single JS
 
 Human: ${nextQuery ? nextQuery : query}
 AI: 
-`
-            break;
-    }
-    //console.log(prompt);
-    return prompt
+`;
+      break;
+  }
+  //console.log(prompt);
+  return prompt;
 }
 
 module.exports = {llmPrompt, extractFirstJSON}
