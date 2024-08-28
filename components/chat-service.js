@@ -3,8 +3,8 @@ const { retrieveKendraSearch } = require('./kendra-retrieval');
 const { mutateConversation, queryConversastion } = require('./conversation-services');
 const { llmPrompt, extractFirstJSON } = require('./prompt-utils');
 const { responseStreaming } = require('./response-streaming');
-const { textToSpeechStream } = require('./tts-polly');
-const {translateText} = require('./translation-service');
+const { textToSpeechStream } = require("./aws-polly-translate/tts-polly");
+const { translateText } = require("./aws-polly-translate/translation-service");
 
 async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLanguage) {
     let textResponse;
