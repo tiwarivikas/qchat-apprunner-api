@@ -50,14 +50,13 @@ async function textToSpeechStream(text, res, translationLanguage) {
     //Call Bhashini TTS APIs
     try {
       const respAudio = await ttsBhashini(text, translationLanguage, "Female");
-
       // Assuming `respAudio` is a Buffer or a Base64 encoded string
-      const audioBuffer = Buffer.from(respAudio[0].audioContent, "base64");
+      //const audioBuffer = Buffer.from(respAudio[0].audioContent, "base64");
 
-      res.write(`data: ${audioBuffer.toString("base64")}\n\n`);
+      //res.write(`data: ${audioBuffer.toString("base64")}\n\n`);
 
-      /* const firstAudioByte = respAudio[0].audioContent;
-      res.write(`data: ${firstAudioByte}\n\n`); */
+      const firstAudioByte = respAudio[0].audioContent;
+      res.write(`data: ${firstAudioByte}\n\n`);
       //res.write(`data: ${respAudio.toString("base64")}\n\n`);
       res.write("event: end\n");
       res.write("data: End of stream\n\n");

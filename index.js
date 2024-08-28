@@ -57,8 +57,9 @@ app.get("/test", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   const response = await bhashiniTranslation("How are you?", "en", "mr");
+  console.log(response);
   const respAudio = await textToSpeechStream(response, res, "mr");
-  //console.log("getting first Audio ");
+  console.log("getting first Audio ");
   //const firstAudioByte = respAudio[0].audioContent;
   //console.log(firstAudioByte);
 
