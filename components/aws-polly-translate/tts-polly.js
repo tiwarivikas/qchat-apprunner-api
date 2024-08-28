@@ -59,6 +59,8 @@ async function textToSpeechStream(text, res, translationLanguage) {
       /* const firstAudioByte = respAudio[0].audioContent;
       res.write(`data: ${firstAudioByte}\n\n`); */
       //res.write(`data: ${respAudio.toString("base64")}\n\n`);
+      res.write("event: end\n");
+      res.write("data: End of stream\n\n");
       res.write("data: [END]\n\n");
       res.end();
     } catch (err) {
