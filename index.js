@@ -5,8 +5,6 @@ const express = require('express');
 const {chat} = require('./components/chat-service');
 const { authenticateJWT } = require("./components/auth-service");
 
-const { performScraping } = require("./components/agents/agentv2");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -38,19 +36,6 @@ app.get("/stream", authenticateJWT, async (req, res) => {
     isSpeakerEnabled,
     translationLanguage
   );
-
-  // Clean up when client closes connection
-  req.on("close", () => {
-    res.end();
-  });
-});
-
-app.get("/test", async (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
-  await performScraping(res);
 
   // Clean up when client closes connection
   req.on("close", () => {
