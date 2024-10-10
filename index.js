@@ -3,15 +3,9 @@ const cors = require('cors');
 const express = require('express');
 
 const {chat} = require('./components/chat-service');
-const {authenticateJWT} = require('./components/auth-service');
-const { speechSynthesizeTTS } = require("./components/bhashini/bhashini-tts");
-const {
-  textToSpeechStream,
-} = require("./components/aws-polly-translate/tts-polly");
+const { authenticateJWT } = require("./components/auth-service");
 
-const {
-  bhashiniTranslation,
-} = require("./components/bhashini/bhashini-translation");
+const { performScraping } = require("./components/agents/agentv2");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,14 +50,7 @@ app.get("/test", async (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const response = await bhashiniTranslation("How are you?", "en", "mr");
-  console.log(response);
-  const respAudio = await textToSpeechStream(response, res, "mr");
-  console.log("getting first Audio ");
-  //const firstAudioByte = respAudio[0].audioContent;
-  //console.log(firstAudioByte);
-
-  //res.status(200).send(response);
+  await performScraping(res);
 
   // Clean up when client closes connection
   req.on("close", () => {

@@ -24,6 +24,12 @@ async function responseStreaming(streamResponse, res) {
                     }
                 } else if (tmpResponse.search('"response": "') > 0 && !blnResponseFinished) {
                     blnResponseStarted = true
+                    const startIndex =
+                      tmpResponse.indexOf('"response": "') + 13;
+                    const responseSubstring = tmpResponse.substring(startIndex);
+                    res.write(`data: ${responseSubstring}\n\n`);
+                    tmpResponseTextOnly =
+                      tmpResponseTextOnly + responseSubstring;
                 }
             }
         };
