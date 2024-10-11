@@ -24,7 +24,8 @@ function llmPrompt(
   query,
   nextQuery,
   kendraRetrieveResponse,
-  isSpeakerEnabled
+  isSpeakerEnabled,
+  website
 ) {
   let prompt = "";
   switch (type) {
@@ -81,7 +82,7 @@ This is the second step of 2-step chain of thoughts. Here are some important gui
   ${kendraRetrieveResponse}
 </context>
 
-In case of any information request related to a official, give higher priority to the search results from webpages like about us compared to information found within pdf files or photo galleries.
+In case of any information request related to a official, give higher priority to the search results from webpages from ${website} compared to information found on other subdomains, within pdf files or photo galleries.
 
 Validate and reconfirm that you are sharing a valid JSON. Only share a single JSON response without any additional explanation or text. IMPORTANT: ONLY RETURN RESPONSE IN JSON FORMAT AND NOTHING ELSE. DON'T TRY TO ANSWER ANY QUESTION FROM YOUR OWN KNOWLEDGEBASE.
 [/INST]

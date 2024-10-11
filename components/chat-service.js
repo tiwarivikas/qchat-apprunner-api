@@ -37,79 +37,101 @@ async function chat(userMsg, decodedToken, res, isSpeakerEnabled, translationLan
           query,
           "",
           "",
-          isSpeakerEnabled
+          isSpeakerEnabled,
+          decodedToken.website
         );
-        const respLLM = await executeBedrockAPI(handleGreetingsPrompt)
+        const respLLM = await executeBedrockAPI(handleGreetingsPrompt);
         const firstLLMResponse = extractFirstJSON(respLLM);
 
         if (firstLLMResponse?.context == "greeting") {
-            textResponse = firstLLMResponse.response
-            const resultFirstConvMutation = await mutateConversation(conversationId, query, "", textResponse, decodedToken)
-            messageId = resultFirstConvMutation.messageId
-            conversationId = resultFirstConvMutation.conversationId
+          textResponse = firstLLMResponse.response;
+          const resultFirstConvMutation = await mutateConversation(
+            conversationId,
+            query,
+            "",
+            textResponse,
+            decodedToken
+          );
+          messageId = resultFirstConvMutation.messageId;
+          conversationId = resultFirstConvMutation.conversationId;
         } else if (firstLLMResponse?.context == "new-query") {
-            nextQuery = ""
+          nextQuery = "";
         } else if (firstLLMResponse?.context == "follow-up") {
-            nextQuery = firstLLMResponse.response
+          nextQuery = firstLLMResponse.response;
         }
 
-        if (firstLLMResponse?.context == "new-query" || firstLLMResponse?.context == "follow-up") {
-            const kendraRetrieveResponse = await retrieveKendraSearch(nextQuery ? nextQuery : query, decodedToken.applicationIdQ)
+        if (
+          firstLLMResponse?.context == "new-query" ||
+          firstLLMResponse?.context == "follow-up"
+        ) {
+          const kendraRetrieveResponse = await retrieveKendraSearch(
+            nextQuery ? nextQuery : query,
+            decodedToken.applicationIdQ
+          );
 
-            if (!kendraRetrieveResponse) {
-                var outputResponse = {
-                    conversationId,
-                    failedAttachments: [],
-                    sourceAttributions: [],
-                    systemMessage: "Sorry, I couldn't find any relevant information.",
-                    systemMessageId: '',
-                    userMessageId: '',
-                };
-            } else {
-                const fullPrompt = llmPrompt(
-                  "SECOND_PROMPT",
-                  decodedToken.customer,
-                  decodedToken.chatbotName,
-                  qnaHistory,
-                  query,
-                  nextQuery,
-                  kendraRetrieveResponse,
-                  isSpeakerEnabled
-                );
-                const response = await executeBedrockStreamingAPI(fullPrompt)
-
-                const outputBR = await responseStreaming(response, res)
-
-                textResponse = outputBR.response?.trim();
-                attributions = outputBR.sourceAttributions?.
-                    filter(function (v, i, self) {
-                        return i == self.indexOf(v);
-                    })
-
-                const resultConvMutation = await mutateConversation(conversationId, query, nextQuery || "", textResponse, decodedToken)
-                messageId = resultConvMutation.messageId
-                conversationId = resultConvMutation.conversationId
-
-                var outputResponse = {
-                    conversationId: conversationId,
-                    failedAttachments: [],
-                    sourceAttributions: attributions,
-                    systemMessage: textResponse,
-                    systemMessageId: messageId,
-                    userMessageId: '',
-                };
-            }
-
-        } else {
+          if (!kendraRetrieveResponse) {
             var outputResponse = {
-                conversationId: conversationId,
-                failedAttachments: [],
-                sourceAttributions: attributions,
-                systemMessage: textResponse,
-                systemMessageId: messageId,
-                userMessageId: '',
+              conversationId,
+              failedAttachments: [],
+              sourceAttributions: [],
+              systemMessage: "Sorry, I couldn't find any relevant information.",
+              systemMessageId: "",
+              userMessageId: "",
             };
-            //return outputResponse;
+          } else {
+            const fullPrompt = llmPrompt(
+              "SECOND_PROMPT",
+              decodedToken.customer,
+              decodedToken.chatbotName,
+              qnaHistory,
+              query,
+              nextQuery,
+              kendraRetrieveResponse,
+              isSpeakerEnabled,
+              decodedToken.website
+            );
+            const response = await executeBedrockStreamingAPI(fullPrompt);
+
+            const outputBR = await responseStreaming(response, res);
+
+            textResponse = outputBR.response?.trim();
+            attributions = outputBR.sourceAttributions?.filter(function (
+              v,
+              i,
+              self
+            ) {
+              return i == self.indexOf(v);
+            });
+
+            const resultConvMutation = await mutateConversation(
+              conversationId,
+              query,
+              nextQuery || "",
+              textResponse,
+              decodedToken
+            );
+            messageId = resultConvMutation.messageId;
+            conversationId = resultConvMutation.conversationId;
+
+            var outputResponse = {
+              conversationId: conversationId,
+              failedAttachments: [],
+              sourceAttributions: attributions,
+              systemMessage: textResponse,
+              systemMessageId: messageId,
+              userMessageId: "",
+            };
+          }
+        } else {
+          var outputResponse = {
+            conversationId: conversationId,
+            failedAttachments: [],
+            sourceAttributions: attributions,
+            systemMessage: textResponse,
+            systemMessageId: messageId,
+            userMessageId: "",
+          };
+          //return outputResponse;
         }
 
         res.write('data: [COMPLETE]\n\n');
