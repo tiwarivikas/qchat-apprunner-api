@@ -81,7 +81,7 @@ This is the second step of 2-step chain of thoughts. Here are some important gui
   ${kendraRetrieveResponse}
 </context>
 
-Give higher priority to the search results that are closer to the homepage i.e. Prioritize information found in "https://<domain.com>/about-us.html" compared to information found in https://<domain.com>/media/gallery/report/event-report.pdf"
+Give higher priority to the search results that are closer to the homepage compared to information found within files.
 
 Validate and reconfirm that you are sharing a valid JSON. Only share a single JSON response without any additional explanation or text. IMPORTANT: ONLY RETURN RESPONSE IN JSON FORMAT AND NOTHING ELSE. DON'T TRY TO ANSWER ANY QUESTION FROM YOUR OWN KNOWLEDGEBASE.
 [/INST]
